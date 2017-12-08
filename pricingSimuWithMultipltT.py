@@ -21,11 +21,11 @@ numT = len(Maturity)
 
 
 Expir = Maturity[numT-1]
-m = 10000        #number of time steps
+m = 5000       #number of time steps
 n = 5000         #number of simulation
 rho = -0.8
 H = 0.10
-xi0 = 0.04
+xi0 = 0.09
 eta = 1.9
 S0 = 100.0
 r = 0
