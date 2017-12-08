@@ -71,7 +71,7 @@ Delta = np.arange(1,50)
 Q = np.array([0.5, 1, 1.5, 2, 3])
 
 
-realVola = getData('../data/SPX500.csv', startDate, endDate)
+realVola = getData('../data/Nasdaq.csv', startDate, endDate)
 
 print "We use data of {} days from {} to {}".format(len(realVola), startDate, endDate)
 
