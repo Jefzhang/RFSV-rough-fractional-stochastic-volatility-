@@ -6,11 +6,13 @@ import math
 
 
 
-N = 4000
+startDate = "20000103"
+endDate = "20170926"
 
-def getData(file, N):
-    volatility = np.zeros(N)
-    count = 0
+def getData(file, startDate, endDate):
+    volatility = []#np.zeros(N)
+    #count = 0
+    shouldImport = False
     with open(file, 'rb') as csvfile:
         Data = csv.reader(csvfile, delimiter = ';')
         for row in Data:
@@ -20,12 +22,15 @@ def getData(file, N):
             except ValueError:
                 continue
             else:
-                if(variance==0):
-                    print date
-                volatility[count]=np.sqrt(variance)
-                count = count+1
-                if(count==N):
+                print type(date)
+                print date
+                if date==startDate:
+                    shouldImport = True
+                if date==endDate:
+                    shouldImport = False
                     break
+                if shouldImport:
+                    volatility = np.append(volatility, np.sqrt(variance))
     return volatility
 
 def logVol(volatility):
@@ -66,13 +71,11 @@ Delta = np.arange(1,50)
 Q = np.array([0.5, 1, 1.5, 2, 3])
 
 
-realVola = getData('../data/SPX500.csv', N)
+realVola = getData('../data/SPX500.csv', startDate, endDate)
+
+print "We use data of {} days from {} to {}".format(len(realVola), startDate, endDate)
 
 logVola = logVol(realVola)
-
-
-
-
 
 
 result = np.zeros((len(Q), len(Delta)))
@@ -117,8 +120,8 @@ plt.legend(loc='best')
 plt.figure(2)
 plt.plot(realVola)
 
-'''
 
+'''
 h = 0.129
 
 deltaD = [1, 5, 25, 125]
