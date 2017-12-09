@@ -5,8 +5,8 @@ import pricingLib as lib
 T = 2.5
 m = 2000        #number of time steps
 n = 2000         #number of simulation
-rho = -0.8
-H = 0.07
+rho = -0.9
+H = 0.06
 xi0 = 0.09
 eta = 1.9
 S0 = 100.0
@@ -14,6 +14,7 @@ r = 0
 tolerence = [0.0001, 0.0001]
 
 espilonk = 0.02
+
 
 covMat = lib.covarianceGenerator(T, m, rho, H)  #compute the covariance matrix (Wt, Z)
 L = lib.choleskyDecom(covMat)   #Cholesky decomposition
@@ -33,20 +34,24 @@ variance = lib.simuVariance(xi0, eta, Wt, T, H)
 assetPrice = lib.simuAssetPrice(S0, Z, variance, T, r)
 
 
+#atmSkew = np.zeros(m)
 atmSkew = lib.ATMSkew('put', assetPrice, espilonk, tolerence, S0, T, r)
-'''
+
+start = 100
 step = 10
-atmSkewSample = np.zeros(m/step)
+
+atmSkewSample = np.zeros((m-start)/step+1)
 for i in range(len(atmSkewSample)):
-    atmSkewSample[i] = atmSkew[i*step]
-'''
-time = np.arange(100,m+1,1)*T/m
+    atmSkewSample[i] = atmSkew[start-1 + i*step]
+
+time = np.arange(start,m+1,step)*T/m
 plt.xlabel(r'Time to expiry $\tau$')
 plt.ylabel(r'$\psi(\tau)$')
-plt.plot(time, atmSkew[99:m], 'r-')
+plt.plot(time, atmSkewSample, 'r-', label = r'$\tilde{\psi}(\tau)$')
 
-A = np.exp(np.mean(np.log(atmSkew[99:m])))
-alpha = 0.5 - H
-plt.plot(time, A/time**alpha, 'b-')
+[A, B] = lib.linearRegression(np.log(time), np.log(atmSkewSample))
+#alpha = 0.5 - H
+regreY = np.exp(A)/time**B
+plt.plot(time, regreY, 'b-', label = r'$1/\tau^{0:.3f}$'.format(B))
 
 plt.show()

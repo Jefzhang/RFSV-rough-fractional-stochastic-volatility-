@@ -136,3 +136,11 @@ def ATMSkew(callput, assetPrice, epsilonk, tolerence, S0, T, r):
         t = (i+1)*T/m
         volaMinus[i] = impliedVol(callput, price, S0, t, Kminus, r, tolerence)
     return np.abs((volaPlus - volaMinus)/2/epsilonk)
+
+
+def linearRegression(X, Y):
+    meanX = np.mean(X)
+    meanY = np.mean(Y)
+    beta1 = np.sum((X-meanX)*(Y-meanY))/np.sum((X-meanX)**2)
+    beta0 = meanY - beta1*meanX
+    return (beta0, beta1)
