@@ -51,7 +51,9 @@ plt.plot(time, atmSkewSample, 'r-', label = r'$\tilde{\psi}(\tau)$')
 
 [A, B] = lib.linearRegression(np.log(time), np.log(atmSkewSample))
 #alpha = 0.5 - H
-regreY = np.exp(A)/time**B
-plt.plot(time, regreY, 'b-', label = r'$1/\tau^{0:.3f}$'.format(B))
-
+regreY = np.exp(A)/(time**B)
+plt.plot(time, regreY, 'b-', label = r'${0:.3f}/\tau^{0:.3f}$'.format(A,B))
+plt.legend()
 plt.show()
+
+print()
