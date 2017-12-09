@@ -25,7 +25,7 @@ m = 5000       #number of time steps
 n = 5000         #number of simulation
 rho = -0.9
 H = 0.07
-xi0 = 0.09
+xi0 = 0.10
 eta = 1.9
 S0 = 100.0
 r = 0
@@ -81,8 +81,10 @@ for i in range(15):
     col = i % 5
     K = np.arange(Kbound[i][0], Kbound[i][1], 1)
     axarr[row, col].set_title('T = {}'.format(Maturity[i]))
-    axarr[row, col].set_xlabel('Log-Strike')
-    axarr[row, col].set_ylabel('Implied Vol')
+    if row==2:
+        axarr[row, col].set_xlabel('Log-Strike')
+    if col==0:
+        axarr[row, col].set_ylabel('Implied Vol')
     axarr[row, col].plot(np.log(K/S0), result[i])
 
 plt.show()
