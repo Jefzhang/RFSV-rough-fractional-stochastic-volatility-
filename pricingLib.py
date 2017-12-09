@@ -116,7 +116,7 @@ def BS(callput, S0, K, T, r, sigma):
         return optionValueOfPut(S0, K_d, d_p, d_m)
 
 
-def ATMSkew(callput, assetPrice, epsilonk, tolerence, S0, T, r):
+def ATMSkew(callput, assetPrice, epsilonk, tolerence, S0, T, start, stepT, r):
     def getPayoff(callput, assetPrice, K):
         if callput=='call':
             return positivePart(assetPrice-K)
@@ -125,15 +125,20 @@ def ATMSkew(callput, assetPrice, epsilonk, tolerence, S0, T, r):
     Kplus = S0*np.exp(epsilonk)
     Kminus = S0*np.exp(-epsilonk)
     m = assetPrice.shape[1]-1
-    priceKplus = np.mean(getPayoff(callput, assetPrice[:,1:m+1], Kplus), axis=0)
-    priceKminus = np.mean(getPayoff(callput, assetPrice[:,1:m+1], Kminus), axis=0)
-    volaPlus = np.zeros(m)
-    volaMinus = np.zeros(m)
+    priceKplus = np.zeros((m-start)/stepT+1)
+    priceKminus = np.zeros((m-start)/stepT+1)
+    for i in range(len(priceKplus)):
+        priceKplus[i] = np.mean(getPayoff(callput, assetPrice[:, start+i*stepT], Kplus))
+        priceKminus[i] = np.mean(getPayoff(callput, assetPrice[:,start+i*stepT], Kminus))
+    #priceKplus = np.mean(getPayoff(callput, assetPrice[:,1:m+1], Kplus), axis=0)
+    #priceKminus = np.mean(getPayoff(callput, assetPrice[:,1:m+1], Kminus), axis=0)
+    volaPlus = np.zeros(len(priceKplus))
+    volaMinus = np.zeros(len(priceKminus))
     for i, price in enumerate(priceKplus):
-        t = (i+1)*T/m
+        t = (start+i*stepT+1)*T/m
         volaPlus[i] = impliedVol(callput, price, S0, t, Kplus, r, tolerence)
     for i, price in enumerate(priceKminus):
-        t = (i+1)*T/m
+        t = (start+i*stepT+1)*T/m
         volaMinus[i] = impliedVol(callput, price, S0, t, Kminus, r, tolerence)
     return np.abs((volaPlus - volaMinus)/2/epsilonk)
 

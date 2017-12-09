@@ -2,9 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pricingLib as lib
 
-T = 2.5
-m = 2000        #number of time steps
-n = 2000         #number of simulation
+T = 2.3
+m = 3000        #number of time steps
+n = 3000         #number of simulation
 rho = -0.9
 H = 0.06
 xi0 = 0.09
@@ -13,7 +13,7 @@ S0 = 100.0
 r = 0
 tolerence = [0.0001, 0.0001]
 
-espilonk = 0.02
+espilonk = 0.015
 
 
 covMat = lib.covarianceGenerator(T, m, rho, H)  #compute the covariance matrix (Wt, Z)
@@ -35,25 +35,28 @@ assetPrice = lib.simuAssetPrice(S0, Z, variance, T, r)
 
 
 #atmSkew = np.zeros(m)
-atmSkew = lib.ATMSkew('put', assetPrice, espilonk, tolerence, S0, T, r)
-
 start = 100
 step = 10
+atmSkew = lib.ATMSkew('put', assetPrice, espilonk, tolerence, S0, T, start, step, r)
 
+
+'''
 atmSkewSample = np.zeros((m-start)/step+1)
 for i in range(len(atmSkewSample)):
     atmSkewSample[i] = atmSkew[start-1 + i*step]
-
+'''
 time = np.arange(start,m+1,step)*T/m
 plt.xlabel(r'Time to expiry $\tau$')
-plt.ylabel(r'$\psi(\tau)$')
-plt.plot(time, atmSkewSample, 'r-', label = r'$\tilde{\psi}(\tau)$')
+#plt.ylabel(r'$\psi(\tau)$')
+plt.plot(time, atmSkew, 'r-', label = r'Simulated result, $\tilde{\psi}(\tau)$')
 
-[A, B] = lib.linearRegression(np.log(time), np.log(atmSkewSample))
-#alpha = 0.5 - H
-regreY = np.exp(A)/time**(-B)
-plt.plot(time, regreY, 'b-', label = r'$a/\tau^b$, a = {0:.2f}, b = {0:.2f}'.format(A,-B))
+alpha = 0.5 - H
+A = np.mean(np.log(atmSkew)+alpha*np.log(time))
+#[A, B] = lib.linearRegression(np.log(time), np.log(atmSkew))
+
+regreY = np.exp(A)/time**(alpha)
+#empiricalY = A/time**(alpha)
+plt.plot(time, regreY, 'b-', label = r'$a/\tau^\tau$, a = {0:.3f}'.format(np.exp(A)))#+r'b = {0:.3f}'.format(-B))
+#plt.plot(time, empiricalY, 'g-', label = r'{0:.2f}/$\tau^\gamma$'.format(A))
 plt.legend()
 plt.show()
-
-print np.exp(A), -B
