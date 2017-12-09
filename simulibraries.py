@@ -12,6 +12,18 @@ def simXEuler(X0, dW, v, alpha, m, delta, Ndays):
     return X
 
 
+def simX(X0, dW, v, alpha, m, delta, Ndays):
+    N = int(math.floor(Ndays / delta))
+    X = np.zeros(N+1)
+    X[0] = X0
+    time = np.arange(1, N+1)*delta
+    term1 = np.exp(-alpha * time)
+    term2 = (X0 - m)*term1
+    term3 = v*term1*np.cumsum(np.exp(alpha*time)*dW)
+    X[1:N+1] = m + term2 + term3
+    return X
+
+
 
 def simPriceEuler(P0, sigma, delta, Ndays):
     N = int(np.floor(Ndays / delta))

@@ -31,6 +31,7 @@ S0 = 100.0
 r = 0
 tolerence = [0.0001, 0.0001]  #tol[0] for the x tolerence, tol[1] for the y tolerence
 
+
 covMat = lib.covarianceGenerator(Expir, m, rho, H)  #compute the covariance matrix (Wt, Z)
 L = lib.choleskyDecom(covMat)   #Cholesky decomposition
 normalMat = np.random.randn(2*m, n) 
@@ -47,28 +48,42 @@ Z[:,1:m+1] = WtZ.T[:,m:2*m]
 variance = lib.simuVariance(xi0, eta, Wt, Expir, H)
 assetPrice = lib.simuAssetPrice(S0, Z, variance, Expir, r)
 
+Kbound = {}
+result = {}
 
 for i, T in enumerate(Maturity):
     
     KBound = chooseStrikeBound(T)
     K = np.arange(KBound[0], KBound[1], 1)
     putValue = np.zeros(len(K))
-    volImpliedPut = np.zeros(len(K))
+    volImpliedPut = np.zeros(len(K))   
     index = int(T*m/Expir)
     for j, k in enumerate(K):
         term = lib.positivePart(k - assetPrice[:,index])
         putValue[j] = np.mean(term)
         volImpliedPut[j] = lib.impliedVol("put", putValue[j], S0, T, k, r, tolerence)
     
+    Kbound[i] = KBound
+    result[i] = volImpliedPut
+
+    '''
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.set_title(r'T = {}'.format(T))
     ax.set_xlabel(r'Log-Strike')
     ax.set_ylabel(r'Implied Vol.')
-    #ax.plot(0,i)
     ax.plot(np.log(K/S0), volImpliedPut, 'b')
+    '''
 
-    
+f, axarr = plt.subplots(3, 5)
+for i in range(15):
+    row = i / 5
+    col = i % 5
+    K = np.arange(Kbound[i][0], Kbound[i][1], 1)
+    axarr[row, col].set_title('T = {}'.format(Maturity[i]))
+    axarr[row, col].set_xlabel('Log-Strike')
+    axarr[row, col].set_ylabel('Implied Vol')
+    axarr[row, col].plot(np.log(K/S0), result[i])
 
 plt.show()
 

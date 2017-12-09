@@ -11,7 +11,7 @@ X0 = -5.0
 P0 = 10.0
 alpha = 1e-4
 Ndays = 2000
-delta = 1.0/4000
+delta = 1.0/2000
 
 output = open('simulation1.txt','w')
 
@@ -26,10 +26,11 @@ startTime = 8
 endTime = 16
 sampleFreInMinuts = 5
 
-X = rfsv.simXEuler(X0, fgn_sample, v, alpha, m, delta, Ndays)
-
+#X = rfsv.simXEuler(X0, fgn_sample, v, alpha, m, delta, Ndays)
+X = rfsv.simX(X0, fgn_sample, v, alpha, m, delta, Ndays)
 sigma = np.exp(X)
-P = rfsv.simPriceEuler(P0, sigma, delta, Ndays)
+P = rfsv.simPrice(P0, sigma, delta, Ndays)
+#P = rfsv.simPriceEuler(P0, sigma, delta, Ndays)
 
 plt.figure(0)
 time = np.arange(0, Ndays+delta, delta)
